@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.*
  *
  * @property repository The repository for accessing user profile data.
  */
-class UserProfileViewModel(internal val repository: UserProfileRepositoryFirestore) : ViewModel() {
+class UserProfileViewModel(internal val repository: UserProfileRepository) : ViewModel() {
 
   // Mutable state flow to hold the user profile
   private val userProfile_ = MutableStateFlow<UserProfile?>(null)

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.orator.model.profile.UserProfile
 import com.github.se.orator.model.profile.UserProfileViewModel
@@ -69,7 +70,7 @@ fun LeaderboardScreen(
         Scaffold(
             topBar = {
               TopAppBar(
-                  title = { Text("Leaderboard") },
+                  title = { Text("Leaderboard", modifier = Modifier.testTag("leaderboardTitle")) },
                   navigationIcon = {
                     IconButton(
                         onClick = {
@@ -90,7 +91,8 @@ fun LeaderboardScreen(
                       Modifier.fillMaxSize()
                           .padding(innerPadding)
                           .padding(horizontal = 16.dp, vertical = 8.dp)
-                          .clickable { focusManager.clearFocus() }) {
+                          .clickable { focusManager.clearFocus() }
+                          .testTag("leaderboardList")) {
                     LazyColumn(
                         contentPadding = PaddingValues(vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -119,7 +121,8 @@ fun LeaderboardItem(rank: Int, profile: UserProfile) {
           Modifier.fillMaxWidth()
               .clip(RoundedCornerShape(12.dp))
               .background(MaterialTheme.colorScheme.surface)
-              .padding(16.dp),
+              .padding(16.dp)
+              .testTag("leaderboardItem#$rank"),
       verticalAlignment = Alignment.CenterVertically) {
         ProfilePicture(profilePictureUrl = profile.profilePic, onClick = {})
         Spacer(modifier = Modifier.width(16.dp))

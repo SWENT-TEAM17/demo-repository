@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.orator.model.profile.UserProfile
 import com.github.se.orator.model.profile.UserProfileViewModel
@@ -58,7 +59,7 @@ fun AddFriendsScreen(
   Scaffold(
       topBar = {
         TopAppBar(
-            title = { Text("Add a Friend") },
+            title = { Text("Add a Friend", modifier = Modifier.testTag("addFriendTitle")) },
             navigationIcon = {
               IconButton(onClick = { navigationActions.goBack() }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -80,7 +81,7 @@ fun AddFriendsScreen(
                 query = newValue
                 expanded = newValue.isNotEmpty()
               },
-              modifier = Modifier.fillMaxWidth(),
+              modifier = Modifier.fillMaxWidth().testTag("addFriendSearchField"),
               label = { Text("Username") },
               leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search Icon") },
               trailingIcon = {
@@ -123,7 +124,8 @@ fun UserItem(user: UserProfile, userProfileViewModel: UserProfileViewModel) {
           Modifier.fillMaxWidth()
               .clip(RoundedCornerShape(12.dp))
               .background(MaterialTheme.colorScheme.surface)
-              .padding(16.dp),
+              .padding(16.dp)
+              .testTag("addFriendUserItem#${user.uid}"),
       verticalAlignment = Alignment.CenterVertically) {
         // Displays the profile picture and allows the user to be added as a friend when clicked
         ProfilePicture(

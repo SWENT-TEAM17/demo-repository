@@ -20,6 +20,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.orator.R
@@ -50,15 +51,20 @@ fun ViewFriendsScreen(
 
   // ModalDrawer Scaffold
   ModalNavigationDrawer(
+      modifier = Modifier.testTag("viewFriendsDrawerMenu"),
       drawerState = drawerState,
       drawerContent = {
         ModalDrawerSheet {
           Column(modifier = Modifier.fillMaxHeight().padding(16.dp)) {
-            Text("Actions", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Actions",
+                modifier = Modifier.testTag("viewFriendsDrawerTitle"),
+                style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(24.dp))
 
             // Option to Add Friend
             TextButton(
+                modifier = Modifier.testTag("viewFriendsAddFriendButton"),
                 onClick = {
                   // Navigate to Add Friend screen
                   scope.launch {
@@ -73,6 +79,7 @@ fun ViewFriendsScreen(
 
             // Option to Leaderboard
             TextButton(
+                modifier = Modifier.testTag("viewFriendsLeaderboardButton"),
                 onClick = {
                   // Close drawer and navigate to Leaderboard screen
                   scope.launch {
@@ -91,6 +98,7 @@ fun ViewFriendsScreen(
                   title = { Text("My Friends") },
                   navigationIcon = {
                     IconButton(
+                        modifier = Modifier.testTag("viewFriendsMenuButton"),
                         onClick = {
                           scope.launch {
                             drawerState.open() // Open the drawer
@@ -131,7 +139,7 @@ fun ViewFriendsScreen(
                                 .padding(bottom = 8.dp)
                                 .focusRequester(
                                     focusRequester) // Attach focusRequester to search bar
-                        )
+                                .testTag("viewFriendsSearch"))
 
                     if (filteredFriends.isEmpty()) {
                       // Show "No user found" when there are no matches
@@ -141,6 +149,7 @@ fun ViewFriendsScreen(
                     } else {
                       // LazyColumn for displaying friends
                       LazyColumn(
+                          modifier = Modifier.testTag("viewFriendsList"),
                           contentPadding = PaddingValues(vertical = 8.dp),
                           verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(filteredFriends) { friend -> FriendItem(friend = friend) }
@@ -158,7 +167,8 @@ fun FriendItem(friend: UserProfile) {
           Modifier.fillMaxWidth()
               .clip(RoundedCornerShape(12.dp))
               .background(MaterialTheme.colorScheme.surface)
-              .padding(16.dp),
+              .padding(16.dp)
+              .testTag("viewFriendsItem#${friend.uid}"),
       verticalAlignment = Alignment.CenterVertically) {
         ProfilePicture(profilePictureUrl = friend.profilePic, onClick = {})
         Spacer(modifier = Modifier.width(16.dp))

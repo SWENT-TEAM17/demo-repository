@@ -1,6 +1,5 @@
 package com.github.se.orator.ui.navigation
 
-import ViewFriendsScreen
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -10,6 +9,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.github.se.orator.model.profile.UserProfileRepositoryFirestore
 import com.github.se.orator.model.profile.UserProfileViewModel
+import com.github.se.orator.ui.friends.ViewFriendsScreen
 import com.github.se.orator.ui.theme.mainScreen.MainScreen
 import com.google.firebase.firestore.FirebaseFirestore
 import org.junit.Rule
