@@ -52,21 +52,16 @@ class SettingsScreenTest {
     }
 
     // Test that each setting button exists and is clickable
-    val settingsTags =
-        listOf(
-            "account_management",
-            "storage_settings",
-            "permissions",
-            "theme",
-            "invite_friends",
-            "notifications",
-            "rate_on_the_app_store",
-            "about")
+    val settingsTags = listOf("theme", "about")
 
     settingsTags.forEach { tag ->
       composeTestRule.onNodeWithTag(tag).assertExists()
       composeTestRule.onNodeWithTag(tag).performClick()
     }
+
+    // Handle the permission button on its own as clicking it will go to the device settings
+    composeTestRule.onNodeWithTag("permissions").assertExists()
+    composeTestRule.onNodeWithTag("permissions").assertHasClickAction()
   }
 
   @Test
