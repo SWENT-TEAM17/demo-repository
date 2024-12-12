@@ -7,6 +7,7 @@ enum class BattleStatus {
   PENDING,
   IN_PROGRESS,
   CANCELLED,
+  EVALUATING,
   COMPLETED
 }
 
@@ -16,9 +17,15 @@ data class SpeechBattle(
     val opponent: String,
     val status: BattleStatus,
     val context: InterviewContext,
-    val winner: String = "", // User ID of the winner
     val challengerCompleted: Boolean = false,
     val opponentCompleted: Boolean = false,
     val challengerData: List<Message> = emptyList(),
-    val opponentData: List<Message> = emptyList()
+    val opponentData: List<Message> = emptyList(),
+    val evaluationResult: EvaluationResult? = null
+)
+
+data class EvaluationResult(
+    val winnerUid: String,
+    val winnerMessage: Message,
+    val loserMessage: Message
 )

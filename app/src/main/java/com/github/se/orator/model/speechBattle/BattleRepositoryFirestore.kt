@@ -1,9 +1,9 @@
 package com.github.se.orator.model.speechBattle
 
 import android.util.Log
-import com.github.se.orator.model.profile.UserProfileRepositoryFirestore
 import com.github.se.orator.model.speaking.InterviewContext
 import com.github.se.orator.ui.network.Message
+import com.github.se.orator.utils.mapToSpeechBattle
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -33,8 +33,9 @@ class BattleRepositoryFirestore(private val db: FirebaseFirestore) : BattleRepos
             "challenger" to speechBattle.challenger,
             "opponent" to speechBattle.opponent,
             "status" to speechBattle.status.name,
-            "interviewContext" to interviewContextMap,
-            "winner" to speechBattle.winner)
+            "interviewContext" to interviewContextMap
+            // Exclude "evaluationResult" as they are not set initially
+            )
 
     // Store the battle in the "battles" collection
     db.collection("battles")
@@ -122,37 +123,9 @@ class BattleRepositoryFirestore(private val db: FirebaseFirestore) : BattleRepos
         }
   }
 
-  /** Converts a Firestore DocumentSnapshot to a SpeechBattle object. */
   private fun documentToSpeechBattle(document: DocumentSnapshot): SpeechBattle? {
     val data = document.data ?: return null
-
-    // Extract basic battle information
-    val battleId = data["battleId"] as? String ?: return null
-    val challenger = data["challenger"] as? String ?: return null
-    val opponent = data["opponent"] as? String ?: return null
-    val statusString = data["status"] as? String ?: return null
-    val status = BattleStatus.valueOf(statusString)
-    val winner = data["winner"] as? String ?: ""
-
-    // Use UserProfileRepositoryFirestore.convert to handle InterviewContext conversion
-    val userProfileRepository = UserProfileRepositoryFirestore(db) // Create an instance
-    val interviewContextMap = data["interviewContext"] as? Map<String, Any> ?: return null
-    val interviewContext =
-        userProfileRepository.convertInterviewContext(interviewContextMap) ?: return null
-
-    // Extract the challengerCompleted and opponentCompleted fields
-    val challengerCompleted = data["challengerCompleted"] as? Boolean ?: false
-    val opponentCompleted = data["opponentCompleted"] as? Boolean ?: false
-
-    return SpeechBattle(
-        battleId = battleId,
-        challenger = challenger,
-        opponent = opponent,
-        status = status,
-        context = interviewContext,
-        winner = winner,
-        challengerCompleted = challengerCompleted,
-        opponentCompleted = opponentCompleted)
+    return mapToSpeechBattle(data)
   }
 
   /** Serializes an InterviewContext to a Map. */
@@ -318,6 +291,43 @@ class BattleRepositoryFirestore(private val db: FirebaseFirestore) : BattleRepos
         }
         .addOnFailureListener { e ->
           Log.e("BattleRepository", "Error updating battle result", e)
+          callback(false)
+        }
+  }
+
+  /** Converts EvaluationResult to a Firestore-friendly map */
+  private fun evaluationResultToMap(evaluation: EvaluationResult): Map<String, Any> {
+    return mapOf(
+        "winnerUid" to evaluation.winnerUid,
+        "winnerMessage" to evaluation.winnerMessage.toMap(),
+        "loserMessage" to evaluation.loserMessage.toMap())
+  }
+
+  /**
+   * Updates the evaluation result for a given battle. This sets the status to COMPLETED, sets the
+   * winner, and stores the evaluation on firebase.
+   *
+   * @param battleId The ID of the battle.
+   * @param evaluation The evaluation result.
+   * @param callback A callback function to execute.
+   */
+  fun updateEvaluationResult(
+      battleId: String,
+      evaluation: EvaluationResult,
+      callback: (Boolean) -> Unit
+  ) {
+    val battleRef = db.collection("battles").document(battleId)
+    val updates =
+        mapOf(
+            "evaluationResult" to evaluationResultToMap(evaluation),
+            "status" to BattleStatus.COMPLETED.name,
+            "winner" to evaluation.winnerUid)
+
+    battleRef
+        .update(updates)
+        .addOnSuccessListener { callback(true) }
+        .addOnFailureListener { e ->
+          Log.e("BattleRepository", "Error updating evaluation result", e)
           callback(false)
         }
   }

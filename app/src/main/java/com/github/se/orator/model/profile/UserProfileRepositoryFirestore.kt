@@ -2,12 +2,10 @@ package com.github.se.orator.model.profile
 
 import android.net.Uri
 import android.util.Log
-import com.github.se.orator.model.speaking.InterviewContext
-import com.github.se.orator.model.speechBattle.BattleStatus
-import com.github.se.orator.model.speechBattle.SpeechBattle
 import com.github.se.orator.utils.formatDate
 import com.github.se.orator.utils.getCurrentDate
 import com.github.se.orator.utils.getDaysDifference
+import com.github.se.orator.utils.mapToSpeechBattle
 import com.github.se.orator.utils.parseDate
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
@@ -234,7 +232,7 @@ class UserProfileRepositoryFirestore(private val db: FirebaseFirestore) : UserPr
       val currentStreak = document.getLong("currentStreak") ?: 0L
 
       // Retrieve 'statistics' map
-      val statisticsMap = document.get("statistics") as? Map<*, *>
+      val statisticsMap = document.get("statistics") as? Map<String, Any>
       val statistics =
           statisticsMap?.let {
             val improvement = (it["improvement"] as? Number)?.toFloat() ?: 0.0f
@@ -263,23 +261,7 @@ class UserProfileRepositoryFirestore(private val db: FirebaseFirestore) : UserPr
             // Extract 'battleStats' list
             val battleStatsList = it["battleStats"] as? List<Map<String, Any>>
             val battleStats =
-                battleStatsList?.mapNotNull { battle ->
-                  try {
-                    convertInterviewContext(battle["context"] as? Map<String, Any>)?.let { context
-                      ->
-                      SpeechBattle(
-                          battleId = battle["battleId"] as? String ?: "",
-                          challenger = battle["challenger"] as? String ?: "",
-                          opponent = battle["opponent"] as? String ?: "",
-                          status = BattleStatus.valueOf(battle["status"] as? String ?: "PENDING"),
-                          context = context,
-                          winner = battle["winner"] as? String ?: "")
-                    }
-                  } catch (e: Exception) {
-                    Log.e("UserProfileRepository", "Error parsing battleStats", e)
-                    null
-                  }
-                } ?: emptyList()
+                battleStatsList?.mapNotNull { battle -> mapToSpeechBattle(battle) } ?: emptyList()
 
             UserStatistics(
                 sessionsGiven = sessionsGiven,
@@ -312,24 +294,6 @@ class UserProfileRepositoryFirestore(private val db: FirebaseFirestore) : UserPr
     } catch (e: Exception) {
       Log.e("UserProfileRepository", "Error converting document to UserProfile", e)
       null
-    }
-  }
-
-  /**
-   * Converts a map to an InterviewContext object.
-   *
-   * @param contextMap The map representation of an InterviewContext.
-   * @return The corresponding InterviewContext object, or null if conversion fails.
-   */
-  fun convertInterviewContext(contextMap: Map<String, Any>?): InterviewContext? {
-    return contextMap?.let {
-      InterviewContext(
-          targetPosition = it["targetPosition"] as? String ?: "",
-          companyName = it["companyName"] as? String ?: "",
-          interviewType = it["interviewType"] as? String ?: "",
-          experienceLevel = it["experienceLevel"] as? String ?: "",
-          jobDescription = it["jobDescription"] as? String ?: "",
-          focusArea = it["focusArea"] as? String ?: "")
     }
   }
 

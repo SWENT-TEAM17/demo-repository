@@ -4,6 +4,7 @@ import android.os.Looper
 import com.github.se.orator.model.speaking.InterviewContext
 import com.github.se.orator.model.speechBattle.BattleRepositoryFirestore
 import com.github.se.orator.model.speechBattle.BattleStatus
+import com.github.se.orator.model.speechBattle.EvaluationResult
 import com.github.se.orator.model.speechBattle.SpeechBattle
 import com.github.se.orator.ui.network.Message
 import com.google.android.gms.tasks.Tasks
@@ -404,6 +405,103 @@ class BattleRepositoryFirestoreTest {
     assertFalse(callbackResult)
   }
 
+  /** New Test: updateEvaluationResult successfully updates the evaluation result */
+  @Test
+  fun updateEvaluationResult_success_callsCallbackWithTrue() {
+    // Arrange
+    val battleId = "battle1"
+    val evaluationResult =
+        EvaluationResult(
+            winnerUid = "user1",
+            winnerMessage =
+                Message(role = "assistant", content = "Congratulations! You won the battle."),
+            loserMessage =
+                Message(
+                    role = "assistant", content = "You lost the battle. Better luck next time."))
+
+    val updates =
+        mapOf(
+            "evaluationResult" to
+                mapOf(
+                    "winnerUid" to "user1",
+                    "winnerMessage" to
+                        mapOf(
+                            "role" to "assistant",
+                            "content" to "Congratulations! You won the battle."),
+                    "loserMessage" to
+                        mapOf(
+                            "role" to "assistant",
+                            "content" to "You lost the battle. Better luck next time.")),
+            "status" to BattleStatus.COMPLETED.name,
+            "winner" to "user1")
+
+    // Mock Firestore update operation to succeed
+    `when`(mockDocumentReference.update(updates)).thenReturn(Tasks.forResult(null))
+
+    var callbackResult = false
+
+    // Act
+    repository.updateEvaluationResult(battleId, evaluationResult) { success ->
+      callbackResult = success
+    }
+
+    // Process any pending tasks
+    shadowOf(Looper.getMainLooper()).idle()
+
+    // Assert
+    verify(mockDocumentReference).update(updates)
+    assertTrue(callbackResult)
+  }
+
+  /** New Test: updateEvaluationResult failure */
+  @Test
+  fun updateEvaluationResult_failure_callsCallbackWithFalse() {
+    // Arrange
+    val battleId = "battle1"
+    val evaluationResult =
+        EvaluationResult(
+            winnerUid = "user1",
+            winnerMessage =
+                Message(role = "assistant", content = "Congratulations! You won the battle."),
+            loserMessage =
+                Message(
+                    role = "assistant", content = "You lost the battle. Better luck next time."))
+
+    val updates =
+        mapOf(
+            "evaluationResult" to
+                mapOf(
+                    "winnerUid" to "user1",
+                    "winnerMessage" to
+                        mapOf(
+                            "role" to "assistant",
+                            "content" to "Congratulations! You won the battle."),
+                    "loserMessage" to
+                        mapOf(
+                            "role" to "assistant",
+                            "content" to "You lost the battle. Better luck next time.")),
+            "status" to BattleStatus.COMPLETED.name,
+            "winner" to "user1")
+
+    // Mock Firestore update operation to fail
+    val exception = Exception("Update failed")
+    `when`(mockDocumentReference.update(updates)).thenReturn(Tasks.forException(exception))
+
+    var callbackResult = true // Initialize to true to check if it's set to false
+
+    // Act
+    repository.updateEvaluationResult(battleId, evaluationResult) { success ->
+      callbackResult = success
+    }
+
+    // Process any pending tasks
+    shadowOf(Looper.getMainLooper()).idle()
+
+    // Assert
+    verify(mockDocumentReference).update(updates)
+    assertFalse(callbackResult)
+  }
+
   /** Helper methods to create test data */
   private fun createTestSpeechBattle(): SpeechBattle {
     return SpeechBattle(
@@ -419,7 +517,17 @@ class BattleRepositoryFirestoreTest {
                 experienceLevel = "Junior",
                 jobDescription = "Develop software",
                 focusArea = "Backend"),
-        winner = "")
+        challengerCompleted = false,
+        opponentCompleted = false,
+        challengerData =
+            listOf(
+                Message(role = "user", content = "Hello"),
+                Message(role = "user", content = "How are you?")),
+        opponentData =
+            listOf(
+                Message(role = "user", content = "Hi"),
+                Message(role = "user", content = "I'm fine, thanks!")),
+        evaluationResult = null)
   }
 
   private fun createTestBattleDataMap(): Map<String, Any> {

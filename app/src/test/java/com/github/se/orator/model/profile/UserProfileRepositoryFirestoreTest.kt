@@ -229,13 +229,29 @@ class UserProfileRepositoryFirestoreTest {
                 "challenger" to "user1",
                 "opponent" to "user2",
                 "status" to "COMPLETED",
-                "context" to
+                "interviewContext" to
                     mapOf(
-                        "interviewType" to "Job Interview",
-                        "role" to "Candidate",
-                        "company" to "TechCorp",
-                        "focusAreas" to listOf("Technical Skills", "Communication")),
-                "winner" to "user1"))
+                        "targetPosition" to "Developer",
+                        "companyName" to "TechCorp",
+                        "interviewType" to "Technical",
+                        "experienceLevel" to "Junior",
+                        "jobDescription" to "Develop software",
+                        "focusArea" to "Backend"),
+                "challengerCompleted" to true,
+                "opponentCompleted" to true,
+                "challengerData" to listOf(mapOf("role" to "user", "content" to "Hello")),
+                "opponentData" to listOf(mapOf("role" to "user", "content" to "Hi")),
+                "evaluationResult" to
+                    mapOf(
+                        "winnerUid" to "user1",
+                        "winnerMessage" to
+                            mapOf(
+                                "role" to "assistant",
+                                "content" to "Congratulations! You won the battle."),
+                        "loserMessage" to
+                            mapOf(
+                                "role" to "assistant",
+                                "content" to "You lost the battle. Better luck next time."))))
     val statisticsMap =
         mapOf(
             "sessionsGiven" to sessionsGivenMap,
@@ -285,7 +301,6 @@ class UserProfileRepositoryFirestoreTest {
           assert(battle?.challenger == "user1")
           assert(battle?.opponent == "user2")
           assert(battle?.status == BattleStatus.COMPLETED)
-          assert(battle?.winner == "user1")
         },
         onFailure = { fail("Failure callback should not be called") })
 
@@ -314,7 +329,7 @@ class UserProfileRepositoryFirestoreTest {
                     experienceLevel = "",
                     jobDescription = "",
                     focusArea = ""),
-            winner = "")
+        )
 
     // Create an existing user profile with existing stats
     val userProfile =

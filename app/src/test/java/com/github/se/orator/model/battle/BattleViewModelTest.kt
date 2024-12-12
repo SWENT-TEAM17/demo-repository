@@ -117,7 +117,6 @@ class BattleViewModelTest {
             opponent = friendUid,
             status = BattleStatus.PENDING,
             context = context,
-            winner = "",
             challengerCompleted = false,
             opponentCompleted = false,
             challengerData = emptyList(),
