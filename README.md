@@ -9,13 +9,15 @@ The app is designed for everyone, from beginners to experienced entrepreneurs an
 
 ## Features
 - **Practice your speech skills**: The user has 3 different practice modes: Sales pitch, public speaking, and interview. The last one works in real-time, meaning the interview questions can change depending on the user's answers thanks to the Chat-GPT API we use.
-- **Real-Time Analysis**: Provides real-time feedback on speech delivery, including aspects such as the emotions that can be derived from the words given as a response (not the tone) as well as what points the user can work on better and how good the response to an interview question/the speech given was.
+- **Real-Time Analysis**: Provides real-time feedback on speech delivery, including aspects such as the emotions that can be derived from the words given as a response as well as what points the user can work on better and how good the response to an interview question/the speech given was.
 - **Friends**: Users can have friends and see how they performed on the same interviews, giving them a sense of competition and a drive to work more on their public speaking skills.
 To add friends, the user should send a request to the person he wants to add and they should accept it, but for now we have a "follow system" where the user can add people as friends and will see them as a friend, but the person added doesn't have them as a friend until they follow back.
+-**Battle of Speech**: Challenge your friends in a Speech Mock Interview, and let the best win !
+-**Track your progress**: The app allows you to track your progress by maintaing a streak, speech-related stats and other entertaining features :)
 
 ### **Architecture diagram**
 Below is the architecture diagram we have this far for our application, which we will change as the app progresses:
-![IMG_0014(1)](https://github.com/user-attachments/assets/27ae3eee-a38f-4585-b7cf-e867ce6f4485)
+![image](https://github.com/user-attachments/assets/cb5c6d83-80de-4c9c-991f-56f5e9d5ce7f)
 
 
 ### **Offline Functionality**
