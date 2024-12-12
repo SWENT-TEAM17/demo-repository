@@ -4,6 +4,7 @@ import android.net.Uri
 import com.github.se.orator.model.speaking.AnalysisData
 import com.github.se.orator.ui.friends.currentPracticeMode
 import com.github.se.orator.ui.friends.currentRankMetric
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.*
@@ -552,5 +553,29 @@ class UserProfileViewModelTest {
     updatedUserProfile?.statistics?.talkTimePercMean?.let { Assert.assertEquals(0.0, it, 0.001) }
 
     verify(repository).updateUserProfile(any(), any(), any())
+  }
+
+  @Test
+  fun `ensureListSizeTen with fewer than 10 elements`() {
+    val inputList = listOf(1f, 2f, 3f)
+    val expectedOutput = listOf(1f, 2f, 3f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)
+    val actualOutput = viewModel.ensureListSizeTen(inputList)
+    assertEquals(expectedOutput, actualOutput)
+  }
+
+  @Test
+  fun `ensureListSizeTen with exactly 10 elements`() {
+    val inputList = listOf(1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f)
+    val expectedOutput = inputList // Should return the same list
+    val actualOutput = viewModel.ensureListSizeTen(inputList)
+    assertEquals(expectedOutput, actualOutput)
+  }
+
+  @Test
+  fun `ensureListSizeTen with more than 10 elements`() {
+    val inputList = listOf(1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f)
+    val expectedOutput = listOf(1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f)
+    val actualOutput = viewModel.ensureListSizeTen(inputList)
+    assertEquals(expectedOutput, actualOutput)
   }
 }

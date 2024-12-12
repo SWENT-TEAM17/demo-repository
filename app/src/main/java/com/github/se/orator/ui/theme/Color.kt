@@ -38,6 +38,10 @@ object AppColors {
   val recordingButtonColor = Color.Red
   val iconColor = Color.Black
   val visualizerBarColor = Color.Cyan
+  val graphDots = Color.Red
+  val axisColor = Color.DarkGray
+  val tickLabelColor = android.graphics.Color.GRAY
+  val tickLineColor = Color.Gray
   val amber = Color(0xFFFFA726) // Amber color
 
   // Gradients

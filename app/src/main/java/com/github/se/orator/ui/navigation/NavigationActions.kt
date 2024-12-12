@@ -33,6 +33,7 @@ object Route {
   const val PRACTICE_QUESTIONS = "PracticeQuestions"
   const val OFFLINE_RECORDING = "OfflineRecording"
   const val OFFLINE_RECORDING_REVIEW = "OfflineRecordingReview"
+  const val STAT = "Statistics"
   const val BATTLE_SEND = "BattleSendScreen"
   const val BATTLE_REQUEST_SENT = "BattleRequestSentScreen"
   const val BATTLE_CHAT = "BattleChatScreen"
@@ -65,6 +66,8 @@ object Screen {
   const val OFFLINE = "Offline Screen"
   const val OFFLINE_RECORDING_SCREEN = "OfflineRecording Screen"
   const val OFFLINE_RECORDING_REVIEW_SCREEN = "OfflineRecordingReview Screen"
+
+  const val STAT = "Statistics screen"
   const val BATTLE_SEND_SCREEN = "Battle Send Screen"
   const val BATTLE_REQUEST_SENT_SCREEN = "Battle Request Sent Screen"
   const val BATTLE_CHAT_SCREEN = "Battle Chat Screen"
