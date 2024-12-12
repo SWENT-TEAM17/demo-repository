@@ -305,7 +305,7 @@ fun OratorApp(
               arguments =
                   listOf(
                       navArgument("battleId") { type = NavType.StringType },
-                      navArgument("userId") { type = NavType.StringType })) { backStackEntry ->
+                  )) { backStackEntry ->
                 val battleId = backStackEntry.arguments?.getString("battleId") ?: ""
                 val userId = userProfileViewModel.userProfile.value?.uid ?: ""
                 BattleChatScreen(
@@ -318,15 +318,18 @@ fun OratorApp(
               }
 
           composable(
-              route = "${Route.WAITING_FOR_COMPLETION}/{battleId}",
-              arguments = listOf(navArgument("battleId") { type = NavType.StringType })) {
-                  backStackEntry ->
+              route = "${Route.WAITING_FOR_COMPLETION}/{battleId}/{friendUid}",
+              arguments =
+                  listOf(
+                      navArgument("battleId") { type = NavType.StringType },
+                      navArgument("friendUid") { type = NavType.StringType })) { backStackEntry ->
                 val battleId = backStackEntry.arguments?.getString("battleId") ?: ""
+                val friendUid = backStackEntry.arguments?.getString("friendUid") ?: ""
                 WaitingForCompletionScreen(
+                    friendUid = friendUid,
                     battleId = battleId,
                     navigationActions = navigationActions,
-                    battleViewModel = battleViewModel,
-                    userId = userProfileViewModel.userProfile.value?.uid ?: "")
+                    battleViewModel = battleViewModel)
               }
           composable(
               route = "${Route.EVALUATION}/{battleId}",

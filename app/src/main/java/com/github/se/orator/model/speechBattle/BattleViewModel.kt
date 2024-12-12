@@ -201,7 +201,8 @@ class BattleViewModel(
               }
             } else {
               // Navigate to the waiting screen while waiting for the other user
-              navigationActions.navigateToWaitingForCompletion(battleId)
+              val friendUid = if (isChallenger) battle.opponent else battle.challenger
+              navigationActions.navigateToWaitingForCompletion(battleId, friendUid)
             }
           } else {
             Log.e("BattleViewModel", "Failed to retrieve battle for battleId: $battleId")

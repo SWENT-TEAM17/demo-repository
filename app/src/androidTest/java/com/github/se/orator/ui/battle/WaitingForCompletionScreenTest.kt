@@ -49,26 +49,27 @@ class WaitingForCompletionScreenTest {
   private var battleUpdateCallback: ((SpeechBattle?) -> Unit)? = null
 
   private val testBattleId = "testBattleId"
-  private val testUserId = "testUser"
+  private val currentUserId = "testUser"
+  private val testFriendUid = "otherUser" // Added for clarity
 
   @Before
   fun setUp() {
     MockitoAnnotations.openMocks(this)
 
     // Mock getCurrentUserUid to return "testUser"
-    `when`(mockUserProfileRepository.getCurrentUserUid()).thenReturn(testUserId)
+    `when`(mockUserProfileRepository.getCurrentUserUid()).thenReturn(currentUserId)
 
     // Initialize ViewModels
     userProfileViewModel = UserProfileViewModel(mockUserProfileRepository)
     apiLinkViewModel = ApiLinkViewModel()
     chatViewModel = ChatViewModel(chatGPTService, apiLinkViewModel)
 
-    // Initial battle state: other user not completed yet.
+    // Initial battle state: friend has not completed yet.
     val initialBattle =
         SpeechBattle(
             battleId = testBattleId,
-            challenger = testUserId,
-            opponent = "otherUser",
+            challenger = currentUserId,
+            opponent = testFriendUid,
             status = BattleStatus.IN_PROGRESS,
             context =
                 InterviewContext(
@@ -79,7 +80,7 @@ class WaitingForCompletionScreenTest {
                     "testDescription",
                     "testFocusArea"),
             challengerCompleted = true, // Current user has completed
-            opponentCompleted = false // Other user has not yet completed
+            opponentCompleted = false // Friend has not yet completed
             )
 
     // Mock listenToBattleUpdates to capture the callback
@@ -93,10 +94,10 @@ class WaitingForCompletionScreenTest {
     }
 
     // Mock getUserProfile to return a valid user profile
-    `when`(mockUserProfileRepository.getUserProfile(eq("testUser"), any(), any())).thenAnswer {
+    `when`(mockUserProfileRepository.getUserProfile(eq(currentUserId), any(), any())).thenAnswer {
         invocation ->
       val onSuccess = invocation.getArgument<(UserProfile?) -> Unit>(1)
-      val userProfile = UserProfile("testUser", "Test User", 100, statistics = UserStatistics())
+      val userProfile = UserProfile(currentUserId, "Test User", 100, statistics = UserStatistics())
       onSuccess(userProfile)
       null
     }
@@ -106,14 +107,14 @@ class WaitingForCompletionScreenTest {
       val onSuccess = invocation.getArgument<(List<UserProfile>) -> Unit>(0)
       val profiles =
           listOf(
-              UserProfile("otherUser", "Other User", 100, statistics = UserStatistics()),
-              UserProfile("testUser", "Test User", 100, statistics = UserStatistics()))
+              UserProfile(testFriendUid, "Other User", 100, statistics = UserStatistics()),
+              UserProfile(currentUserId, "Test User", 100, statistics = UserStatistics()))
       onSuccess(profiles)
       null
     }
 
     // Initialize UserProfileViewModel
-    userProfileViewModel.getUserProfile("testUser")
+    userProfileViewModel.getUserProfile(currentUserId)
 
     // Initialize BattleViewModel
     battleViewModel =
@@ -136,7 +137,7 @@ class WaitingForCompletionScreenTest {
     composeTestRule.setContent {
       WaitingForCompletionScreen(
           battleId = testBattleId,
-          userId = testUserId,
+          friendUid = testFriendUid, // Corrected parameter
           navigationActions = mockNavigationActions,
           battleViewModel = battleViewModel)
     }
@@ -148,7 +149,7 @@ class WaitingForCompletionScreenTest {
     composeTestRule.onNodeWithTag("waitingText").assertIsDisplayed()
     composeTestRule.onNodeWithTag("loadingIndicator").assertIsDisplayed()
 
-    // No navigation should have happened yet since otherUser not completed
+    // No navigation should have happened yet since friend has not completed
     verify(mockNavigationActions, never()).navigateToEvaluationScreen(anyString())
   }
 
@@ -161,19 +162,19 @@ class WaitingForCompletionScreenTest {
     composeTestRule.setContent {
       WaitingForCompletionScreen(
           battleId = testBattleId,
-          userId = testUserId,
+          friendUid = testFriendUid, // Corrected parameter
           navigationActions = mockNavigationActions,
           battleViewModel = battleViewModel)
     }
 
     composeTestRule.waitForIdle()
 
-    // Simulate update: now the other user has completed
+    // Simulate update: now the friend has completed
     val updatedBattle =
         SpeechBattle(
             battleId = testBattleId,
-            challenger = testUserId,
-            opponent = "otherUser",
+            challenger = currentUserId,
+            opponent = testFriendUid,
             status = BattleStatus.IN_PROGRESS,
             context =
                 InterviewContext(
@@ -184,7 +185,7 @@ class WaitingForCompletionScreenTest {
                     "testDescription",
                     "testFocusArea"),
             challengerCompleted = true,
-            opponentCompleted = true // now other user completed
+            opponentCompleted = true // Friend has now completed
             )
 
     // Trigger the callback to simulate battle update

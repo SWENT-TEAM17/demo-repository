@@ -29,7 +29,7 @@ import com.github.se.orator.ui.theme.AppDimensions
 @Composable
 fun WaitingForCompletionScreen(
     battleId: String,
-    userId: String,
+    friendUid: String,
     navigationActions: NavigationActions,
     battleViewModel: BattleViewModel
 ) {
@@ -41,7 +41,7 @@ fun WaitingForCompletionScreen(
     battle?.let {
       // Check if the other user has completed
       val otherUserCompleted =
-          if (userId == it.challenger) it.opponentCompleted else it.challengerCompleted
+          if (friendUid == it.opponent) it.opponentCompleted else it.challengerCompleted
 
       if (otherUserCompleted) {
         // Navigate directly to the evaluation screen

@@ -205,8 +205,8 @@ open class NavigationActions(
    *
    * @param battleId The ID of the battle.
    */
-  open fun navigateToWaitingForCompletion(battleId: String) {
-    navController.navigate("${Route.WAITING_FOR_COMPLETION}/$battleId")
+  open fun navigateToWaitingForCompletion(battleId: String, friendUid: String) {
+    navController.navigate("${Route.WAITING_FOR_COMPLETION}/$battleId/$friendUid")
   }
 
   /**
