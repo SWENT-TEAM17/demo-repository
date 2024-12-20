@@ -18,8 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.github.se.orator.model.offlinePrompts.OfflinePromptsFunctions
+import com.github.se.orator.model.offlinePrompts.OfflinePromptsFunctionsInterface
 import com.github.se.orator.model.symblAi.AudioRecorder
-import com.github.se.orator.model.symblAi.SpeakingError
 import com.github.se.orator.model.symblAi.SpeakingRepository
 import com.github.se.orator.model.symblAi.SpeakingViewModel
 import com.github.se.orator.ui.navigation.NavigationActions
@@ -41,7 +42,8 @@ fun OfflineRecordingScreen(
     viewModel: SpeakingViewModel = viewModel(),
     permissionGranted: MutableState<Boolean> = remember {
       mutableStateOf(false)
-    } // Makes for easier testing
+    }, // Makes for easier testing
+    offlinePromptsFunctions: OfflinePromptsFunctionsInterface = OfflinePromptsFunctions()
 ) {
   val fileSaved = viewModel.fileSaved
   val analysisState = remember {
@@ -69,6 +71,8 @@ fun OfflineRecordingScreen(
 
   val colors = MaterialTheme.colorScheme
   val amplitudes = remember { mutableStateListOf<Float>() }
+  val feedbackMessage = remember { MutableStateFlow("Tap the mic to start recording") }
+
   handleAudioRecording(collState, permissionGranted, amplitudes)
 
   // back button
@@ -120,24 +124,17 @@ fun OfflineRecordingScreen(
                           if (analysisState.value == SpeakingRepository.AnalysisState.IDLE) {
                             recorder.startRecording(
                                 File(context.cacheDir, "${viewModel.interviewPromptNb.value}.mp3"))
-
-                            Log.d(
-                                "aa",
-                                "now transcribing to: ${viewModel.interviewPromptNb.value}.mp3")
                             analysisState.value = SpeakingRepository.AnalysisState.RECORDING
                           }
                           // what to do when user finishes recording a file
                           else if (analysisState.value ==
                               SpeakingRepository.AnalysisState.RECORDING) {
+                            analysisState.value = SpeakingRepository.AnalysisState.IDLE
                             File(context.cacheDir, "${viewModel.interviewPromptNb.value}.mp3")
                                 .also {
-                                  Log.d(
-                                      "aall",
-                                      " file saved to: \"${viewModel.interviewPromptNb.value}.mp3\"")
                                   recorder.stopRecording()
                                   viewModel.setFileSaved(false)
                                 }
-                            analysisState.value = SpeakingRepository.AnalysisState.FINISHED
                           } else {
                             Log.d("offline recording screen issue", "Unrecognized analysis state!")
                           }
@@ -148,27 +145,23 @@ fun OfflineRecordingScreen(
 
               Spacer(modifier = Modifier.height(AppDimensions.paddingMedium))
 
-              // Display feedback messages
-              val feedbackMessage =
-                  when (analysisState.value) {
-                    SpeakingRepository.AnalysisState.RECORDING -> "Recording..."
-                    SpeakingRepository.AnalysisState.IDLE -> "Tap the mic to start recording."
-                    else ->
-                        when (viewModel.analysisError.value) {
-                          SpeakingError.NO_ERROR -> "Analysis finished."
-                          else -> "Finished recording"
-                        }
-                  }
-
               Text(
-                  feedbackMessage,
+                  "Tap once to record, tap again to stop returning.",
                   modifier = Modifier.testTag("mic_text"),
                   fontSize = AppFontSizes.bodyLarge,
                   color = colors.onSurface)
 
+              Text(
+                  text =
+                      "Target company: ${offlinePromptsFunctions.getPromptMapElement(viewModel.interviewPromptNb.value, "targetCompany", context)}",
+                  fontSize = AppFontSizes.bodyLarge,
+                  color = colors.onSurface,
+                  modifier =
+                      Modifier.padding(top = AppDimensions.paddingMedium).testTag("targetCompany"))
+
               // question for user to remember
               Text(
-                  text = question,
+                  text = "Make sure to focus on: " + question,
                   fontSize = AppFontSizes.bodyLarge,
                   color = colors.onSurface,
                   modifier =
@@ -179,7 +172,8 @@ fun OfflineRecordingScreen(
               // button for user to click when he is done recording
               Button(
                   onClick = {
-                    if (fileSaved.value) {
+                    if (fileSaved.value &&
+                        analysisState.value != SpeakingRepository.AnalysisState.RECORDING) {
                       viewModel.endAndSave()
                       viewModel.setFileSaved(false)
                       navigationActions.navigateTo(Screen.OFFLINE_RECORDING_REVIEW_SCREEN)

@@ -14,15 +14,16 @@ import com.github.se.orator.model.profile.UserProfileViewModel
 import com.github.se.orator.model.symblAi.SpeakingRepository
 import com.github.se.orator.model.symblAi.SpeakingViewModel
 import com.github.se.orator.ui.navigation.NavigationActions
-import com.github.se.orator.ui.navigation.Screen
 import com.github.se.orator.ui.overview.OfflineInterviewModule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.mock
+import org.mockito.Mockito.*
+import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 
 class OfflineInterviewModuleTest {
+
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var navigationActions: NavigationActions
@@ -31,46 +32,81 @@ class OfflineInterviewModuleTest {
   private lateinit var apiLinkViewModel: ApiLinkViewModel
   private lateinit var userProfileViewModel: UserProfileViewModel
   private lateinit var userProfileRepository: UserProfileRepository
-  private lateinit var offlinePromptsFunctions: OfflinePromptsFunctionsInterface
+  private lateinit var mockOfflinePromptsFunctions: OfflinePromptsFunctionsInterface
 
   @Before
   fun setUp() {
     navigationActions = mock(NavigationActions::class.java)
-    offlinePromptsFunctions = mock(OfflinePromptsFunctionsInterface::class.java)
     speakingRepository = mock(SpeakingRepository::class.java)
     apiLinkViewModel = ApiLinkViewModel()
     userProfileRepository = mock(UserProfileRepository::class.java)
     userProfileViewModel = UserProfileViewModel(userProfileRepository)
+    mockOfflinePromptsFunctions = mock(OfflinePromptsFunctionsInterface::class.java)
 
     speakingViewModel =
         SpeakingViewModel(speakingRepository, apiLinkViewModel, userProfileViewModel)
+
+    // Mocking the response for getPromptMapElement
+    `when`(mockOfflinePromptsFunctions.getPromptMapElement(anyString(), anyString(), any()))
+        .thenReturn("Test Company")
+
     composeTestRule.setContent {
-      OfflineInterviewModule(navigationActions, speakingViewModel, offlinePromptsFunctions)
+      OfflineInterviewModule(
+          navigationActions = navigationActions,
+          speakingViewModel = speakingViewModel,
+          offlinePromptsFunctions = mockOfflinePromptsFunctions)
     }
   }
 
   @Test
-  fun testEverythingDisplayed() {
-    composeTestRule.onNodeWithTag("company").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("jobInput").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("content").assertIsDisplayed()
+  fun testEverythingIsDisplayed() {
+    composeTestRule.onNodeWithTag("company_field").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("job_field").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("question_field").assertIsDisplayed()
     composeTestRule.onNodeWithTag("doneButton").assertIsDisplayed()
-
-    composeTestRule.onNodeWithText("Go to questions screen").assertIsDisplayed()
+    composeTestRule.onNodeWithText("What company are you applying to?").assertIsDisplayed()
+    composeTestRule.onNodeWithText("What job are you applying to?").assertIsDisplayed()
+    composeTestRule.onNodeWithText("Go to recording screen").assertIsDisplayed()
   }
 
   @Test
   fun inputJobAndCompany() {
-    composeTestRule.onNodeWithTag("company").performTextInput("Apple")
-    composeTestRule.onNodeWithTag("jobInput").performTextInput("Engineer")
+    // Input Company
+    composeTestRule.onNodeWithTag("company_field", useUnmergedTree = true).performTextInput("Apple")
+    composeTestRule
+        .onNodeWithTag("company_field", useUnmergedTree = true)
+        .assertTextContains("Apple")
 
-    composeTestRule.onNodeWithTag("company").assertTextContains("Apple")
-    composeTestRule.onNodeWithTag("jobInput").assertTextContains("Engineer")
+    // Input Job Position
+    composeTestRule.onNodeWithTag("job_field", useUnmergedTree = true).performTextInput("Engineer")
+    composeTestRule
+        .onNodeWithTag("job_field", useUnmergedTree = true)
+        .assertTextContains("Engineer")
+
+    // Input Question
+    composeTestRule.onNodeWithTag("question_field").performTextInput("Focus on leadership skills")
+    composeTestRule.onNodeWithTag("question_field").assertTextContains("Focus on leadership skills")
   }
 
   @Test
   fun testButtonFunctionality() {
+    // Input necessary fields
+    composeTestRule.onNodeWithTag("company_field").performTextInput("Apple")
+    composeTestRule.onNodeWithTag("job_field").performTextInput("Engineer")
+    composeTestRule.onNodeWithTag("question_field").performTextInput("Focus on leadership skills")
+
+    // Click Done button
     composeTestRule.onNodeWithTag("doneButton").performClick()
-    verify(navigationActions).navigateTo(Screen.PRACTICE_QUESTIONS_SCREEN)
+
+    // Verify navigation to OfflineRecordingScreen with the correct question
+    verify(navigationActions).goToOfflineRecording("Focus on leadership skills")
+  }
+
+  @Test
+  fun testBackButton_navigation() {
+    composeTestRule.onNodeWithTag("back_button").performClick()
+
+    // Verify that navigation back was called
+    verify(navigationActions).goBack()
   }
 }

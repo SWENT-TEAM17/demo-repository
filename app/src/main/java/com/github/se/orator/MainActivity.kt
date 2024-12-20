@@ -54,7 +54,6 @@ import com.github.se.orator.ui.navigation.Route
 import com.github.se.orator.ui.navigation.Screen
 import com.github.se.orator.ui.network.ChatGPTService
 import com.github.se.orator.ui.network.createChatGPTService
-import com.github.se.orator.ui.offline.OfflinePracticeQuestionsScreen
 import com.github.se.orator.ui.offline.OfflineRecordingScreen
 import com.github.se.orator.ui.offline.OfflineScreen
 import com.github.se.orator.ui.offline.RecordingReviewScreen
@@ -187,9 +186,6 @@ fun OratorApp(
         modifier = Modifier.testTag("navHost")) {
           // Offline flow screens
           composable(Screen.OFFLINE) { OfflineScreen(navigationActions) }
-          composable(Screen.PRACTICE_QUESTIONS_SCREEN) {
-            OfflinePracticeQuestionsScreen(navigationActions)
-          }
           composable(Screen.OFFLINE_RECORDING_REVIEW_SCREEN) {
             RecordingReviewScreen(navigationActions, speakingViewModel)
           }

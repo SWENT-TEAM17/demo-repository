@@ -10,16 +10,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -52,9 +53,10 @@ fun PromptCard(
   Card(
       modifier =
           Modifier.fillMaxWidth()
-              .height(AppDimensions.cardSectionHeight)
+              .height(AppDimensions.cardSectionHeightMedium)
               .padding(AppDimensions.paddingSmall)
               .testTag("prompt_card_$index"),
+      // colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onSurface),
       onClick = {
         speakingViewModel.interviewPromptNb.value = promptID
         Log.d(
@@ -69,14 +71,17 @@ fun PromptCard(
                   text = "Interview ${index + 1}",
                   fontSize = AppFontSizes.bodyLarge,
                   fontWeight = FontWeight.Bold,
+                  color = MaterialTheme.colorScheme.primary,
                   modifier = Modifier.testTag("prompt_title_$index"))
               Spacer(modifier = Modifier.height(AppDimensions.paddingSmall))
-              prompt.forEach { (key, value) ->
-                Text(
-                    text = "Company: $value",
-                    fontSize = AppFontSizes.bodySmall,
-                    modifier = Modifier.testTag("prompt_detail_${index}_$key"))
-              }
+              Text(
+                  text = "Company: ${prompt["targetCompany"]}",
+                  fontSize = AppFontSizes.bodySmall,
+                  color = MaterialTheme.colorScheme.primary)
+              Text(
+                  text = "Job position: ${prompt["jobPosition"]}",
+                  fontSize = AppFontSizes.bodySmall,
+                  color = MaterialTheme.colorScheme.primary)
             }
       }
 }
@@ -91,22 +96,26 @@ fun PromptCardsSection(
   val prompts =
       offlinePromptsFunctions.loadPromptsFromFile(context) // Load the prompts from the file
 
-  Column(
+  LazyColumn(
       modifier = Modifier.fillMaxSize().padding(AppDimensions.paddingMedium),
       horizontalAlignment = Alignment.CenterHorizontally) {
         if (prompts.isNullOrEmpty()) {
           // If no prompts exist, show a placeholder text
-          Text(
-              text = "No prompts found.",
-              style = AppTypography.bodyLargeStyle,
-              modifier = Modifier.testTag("no_prompts_text"))
+          item {
+            Text(
+                text = "No prompts found.",
+                style = AppTypography.bodyLargeStyle,
+                modifier = Modifier.testTag("no_prompts_text"))
+          }
         } else {
           // Display a card for each prompt
           prompts.forEachIndexed { index, prompt ->
             val promptID = prompt.get("ID") ?: "audio.mp3"
-            PromptCard(
-                prompt = prompt, index = index, navigationActions, speakingViewModel, promptID)
-            Spacer(modifier = Modifier.height(AppDimensions.paddingSmall))
+            item {
+              PromptCard(
+                  prompt = prompt, index = index, navigationActions, speakingViewModel, promptID)
+            }
+            item { Spacer(modifier = Modifier.height(AppDimensions.paddingSmall)) }
           }
         }
       }
@@ -132,7 +141,7 @@ fun OfflineRecordingsProfileScreen(
                     Icons.Outlined.ArrowBackIosNew,
                     contentDescription = "Back button",
                     modifier = Modifier.size(AppDimensions.iconSizeMedium),
-                    tint = Color.Black)
+                    tint = MaterialTheme.colorScheme.onSurface)
               }
         })
     Column(modifier = Modifier.fillMaxSize().padding(AppDimensions.paddingMedium)) {

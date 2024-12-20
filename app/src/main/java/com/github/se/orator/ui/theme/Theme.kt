@@ -228,6 +228,9 @@ object AppDimensions {
   val cardSectionHeight: Dp
     @Composable get() = (scaleFactorHeight() * 100.0f).dp
 
+  val cardSectionHeightMedium: Dp
+    @Composable get() = (scaleFactorHeight() * 120.0f).dp
+
   val cardHorizontalPadding: Dp
     @Composable get() = (scaleFactorWidth() * 30.0f).dp
 

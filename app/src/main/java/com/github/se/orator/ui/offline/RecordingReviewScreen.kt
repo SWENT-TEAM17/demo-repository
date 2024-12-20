@@ -51,7 +51,7 @@ fun RecordingReviewScreen(
             colors =
                 ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             onClick = { player.playFile(audioFile) }) {
-              Text(text = "Hear recording", color = MaterialTheme.colorScheme.surface)
+              Text(text = "Play recording", color = MaterialTheme.colorScheme.surface)
             }
 
         Button(

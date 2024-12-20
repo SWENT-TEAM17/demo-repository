@@ -87,7 +87,8 @@ class OfflinePromptsFunctions : OfflinePromptsFunctionsInterface {
 
     // if we're trying to write 1 when the entry is already 1 then stop
     // this is to fix the glitch of sending multiple transcriptions at once
-    if (updatedEntry[entry] == "1" && value == "1") {
+    if ((updatedEntry[entry] == "1" && value == "1") ||
+        (entry == "transcribed" && "transcription" == "")) {
       Log.d("offpr", "could not transcribe $value to $entry for prompt $id")
       return false // prompt is already being transcribed to
     }

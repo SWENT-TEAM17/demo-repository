@@ -127,10 +127,9 @@ class SpeakingViewModel(
           delay(500) // Check every 500ms
           promptGPTVal =
               offlinePromptsFunctions.getPromptMapElement(ID, "GPTresponse", context).toString()
-          Log.d("pr", "promptGPTVal is : $promptGPTVal")
         }
         // if the transcription did not fail then request a prompt for feedback
-        if (promptGPTVal == "1") {
+        if (promptGPTVal == "1") { // for debugging and testing
           val transcription =
               offlinePromptsFunctions.getPromptMapElement(ID, "transcription", context)
           Log.d("before response", "the transcription was successful $transcription")

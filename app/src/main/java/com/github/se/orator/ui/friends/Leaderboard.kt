@@ -293,12 +293,12 @@ fun LeaderboardItem(
 fun TitleAppBar(
     navigationActions: NavigationActions,
     title: String,
-    titleTestTAg: String,
+    titleTestTag: String,
     buttonTestTag: String,
     iconTestTag: String
 ) {
   TopNavigationMenu(
-      textTestTag = titleTestTAg,
+      textTestTag = titleTestTag,
       title = title,
       navigationIcon = {
         IconButton(
